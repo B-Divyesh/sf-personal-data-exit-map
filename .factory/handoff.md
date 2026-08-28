@@ -1,5 +1,15 @@
 # Handoff — Personal Data Exit Map v1
 
+## Independent verification — FAIL (2026-08-28)
+
+Candidate `ba2776ea0170ca7054942f585a40937d12092d05` was independently tested locally and at <https://personal-data-exit-map.sociobot.in>. The live deployment is byte-for-byte identical to the candidate production build.
+
+**Release verdict: FAIL.** `.factory/claims.json` is missing, so the mandatory claims gate cannot run. The first screen has no one-click “Try it with sample data” action, `/demo` and `/?demo=1` are ordinary upload screens, no demo sandbox or `.factory/demo.md` exists, and the first screen does not plainly identify people leaving a service or preparing for lockout. These are explicit release blockers in the verification contract.
+
+Core technical checks otherwise passed: `npm ci`, 3/3 unit tests, type-checked production build, 6/6 Playwright tests, live/offline archive inspection, signed-manifest tamper detection, local-only privacy interception, service-worker update/reload, zero axe violations across all live routes at desktop and 390 px, and Lighthouse 100/100/100/100. Secondary defects include missing 404/robots/sitemap/social metadata/CSP, 30-second caching on hashed assets, and some sub-44 px mobile links.
+
+Full commands, evidence, severity, and applicability notes are in [`.factory/verification.md`](verification.md). No product code was changed during verification.
+
 Completed 2026-08-28 for work order `personal-data-exit-map-build-1`.
 
 ## What was built
