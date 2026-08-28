@@ -1,0 +1,16 @@
+{
+  "slug": "personal-data-exit-map",
+  "title": "Personal Data Exit Map",
+  "territory": "utilities",
+  "user": "People leaving a service or preparing for lockout who need a sober inventory of their export, what can be reused elsewhere, and what account-dependent data will remain behind.",
+  "smallest_useful_product": "A local web app that opens supported export archives, creates a file/metadata inventory, detects common reusable formats, produces a preservation checklist and a signed manifest, and links to manual export steps for unsupported services.",
+  "success_measure": "75% of test users can answer where their top five data categories are stored and complete one verified export within a single session.",
+  "artifact_class": "pwa-offline",
+  "monetization": "free",
+  "constraints": [
+    "Never ask for account passwords or upload exports.",
+    "Parser plugins must be sandboxed.",
+    "Label formats and version support precisely.",
+    "Do not imply an export preserves legal access rights or social relationships."
+  ]
+}
