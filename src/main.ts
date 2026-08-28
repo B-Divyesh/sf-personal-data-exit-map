@@ -1,7 +1,7 @@
 import './style.css';
 import { categorize, detectService, formatBytes, makeChecklist, PARSER_VERSION } from './analyzer';
 import { guides } from './guides';
-import { listAssessments, removeAssessment, saveAssessment } from './db';
+import { discardDemoData, isDemoMode, listAssessments, removeAssessment, saveAssessment } from './db';
 import { signManifest, verifyManifest } from './signing';
 import type { Assessment, Category, SignedManifest, WorkerResult } from './types';
 
@@ -14,6 +14,7 @@ const $ = <T extends HTMLElement>(selector: string): T => {
 let current: Assessment | null = null;
 let deleteId: string | null = null;
 let worker: Worker | null = null;
+const demoMode = isDemoMode();
 
 const archiveInput = $<HTMLInputElement>('#archive-input');
 const assessmentImport = $<HTMLInputElement>('#assessment-import');
@@ -100,7 +101,15 @@ async function analyzeFile(file: File): Promise<void> {
         limits: ['ZIP64 and split archives are not supported.', 'ZIP contents are not decompressed or schema-validated.', 'Entry CRC-32 values come from the ZIP directory; archive SHA-256 is computed locally.', 'Classification uses file paths and extensions and may require human review.']
       },
       summary: { files: parsed.entries.length - folders, folders, uncompressedBytes: parsed.entries.reduce((sum, entry) => sum + (entry.directory ? 0 : entry.size), 0) },
-      categories: categories.map(({ paths: _paths, ...category }) => category),
+      categories: categories.map((category) => ({
+        id: category.id,
+        name: category.name,
+        explanation: category.explanation,
+        portability: category.portability,
+        bytes: category.bytes,
+        files: category.files,
+        formats: category.formats
+      })),
       entries: parsed.entries
     };
     const manifest = await signManifest(manifestBase);
@@ -122,6 +131,43 @@ async function analyzeFile(file: File): Promise<void> {
   } finally {
     archiveInput.value = '';
   }
+}
+
+function sampleArchive(): File {
+  const paths = [
+    ['Takeout/Google Photos/Family album/lake-sunrise.jpg', 4_200_000],
+    ['Takeout/Contacts/All Contacts.vcf', 18_400],
+    ['Takeout/Mail/All mail.mbox', 620_000],
+    ['Takeout/Calendar/Family events.ics', 4_800],
+    ['Takeout/YouTube/history.json', 22_000],
+    ['Takeout/Subscriptions/subscriptions.json', 9_200]
+  ] as const;
+  const encoder = new TextEncoder();
+  const records = paths.map(([name, size]) => {
+    const nameBytes = encoder.encode(name);
+    const record = new Uint8Array(46 + nameBytes.length);
+    const view = new DataView(record.buffer);
+    view.setUint32(0, 0x02014b50, true);
+    view.setUint16(4, 20, true);
+    view.setUint16(6, 20, true);
+    view.setUint32(16, 0x12345678, true);
+    view.setUint32(20, size, true);
+    view.setUint32(24, size, true);
+    view.setUint16(28, nameBytes.length, true);
+    record.set(nameBytes, 46);
+    return record;
+  });
+  const directoryLength = records.reduce((sum, record) => sum + record.length, 0);
+  const archive = new Uint8Array(directoryLength + 22);
+  let offset = 0;
+  records.forEach((record) => { archive.set(record, offset); offset += record.length; });
+  const end = new DataView(archive.buffer, directoryLength);
+  end.setUint32(0, 0x06054b50, true);
+  end.setUint16(8, records.length, true);
+  end.setUint16(10, records.length, true);
+  end.setUint32(12, directoryLength, true);
+  end.setUint32(16, 0, true);
+  return new File([archive], 'sample-google-takeout.zip', { type: 'application/zip', lastModified: Date.UTC(2026, 7, 28) });
 }
 
 function statusLabel(category: Category): string {
@@ -324,7 +370,7 @@ $('#export-csv').addEventListener('click', () => { if (current) download(`${safe
 function updateNetwork(): void {
   const node = $('#network-status'); const label = node.querySelector('span:last-child');
   node.classList.toggle('offline', !navigator.onLine);
-  if (label) label.textContent = navigator.onLine ? 'Ready offline' : 'Offline — local tools ready';
+  if (label) label.textContent = navigator.onLine ? 'Preparing offline access…' : 'Offline — local tools ready';
 }
 window.addEventListener('online', updateNetwork); window.addEventListener('offline', updateNetwork); updateNetwork();
 
@@ -336,7 +382,12 @@ $('#install-button').addEventListener('click', async () => { if (!installEvent) 
 if ('serviceWorker' in navigator) {
   let updateRequested = false;
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').then((registration) => {
+    navigator.serviceWorker.register('/sw.js').then(async (registration) => {
+      await navigator.serviceWorker.ready;
+      if (navigator.onLine) {
+        const label = $('#network-status').querySelector('span:last-child');
+        if (label) label.textContent = 'Ready offline';
+      }
       registration.addEventListener('updatefound', () => {
         const installing = registration.installing;
         installing?.addEventListener('statechange', () => {
@@ -353,4 +404,45 @@ if ('serviceWorker' in navigator) {
 }
 
 renderGuides();
-void renderSaved();
+document.querySelectorAll<HTMLAnchorElement>('.skip-link').forEach((link) => {
+  link.addEventListener('click', () => {
+    const main = $<HTMLElement>('#main');
+    main.tabIndex = -1;
+    window.setTimeout(() => main.focus({ preventScroll: true }));
+  });
+});
+
+async function startDemo(): Promise<void> {
+  const banner = $('#demo-banner');
+  banner.hidden = false;
+  document.body.classList.add('demo-mode');
+  document.title = 'Demo — Personal Data Exit Map';
+  document.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.setAttribute('href', 'https://personal-data-exit-map.sociobot.in/demo/');
+  document.querySelector<HTMLMetaElement>('meta[property="og:url"]')?.setAttribute('content', 'https://personal-data-exit-map.sociobot.in/demo/');
+  document.querySelector<HTMLMetaElement>('meta[property="og:title"]')?.setAttribute('content', 'Demo — Personal Data Exit Map');
+  await renderSaved();
+  const saved = await listAssessments();
+  if (saved.length > 0) {
+    renderAssessment(saved[0]);
+    results.scrollIntoView({ behavior: 'auto', block: 'start' });
+  } else {
+    await analyzeFile(sampleArchive());
+  }
+}
+
+$('#reset-demo').addEventListener('click', async () => {
+  try {
+    await discardDemoData();
+    location.reload();
+  } catch (error) {
+    showToast(error instanceof Error ? error.message : 'The demo could not be reset.');
+  }
+});
+
+$('#start-real').addEventListener('click', async () => {
+  try { await discardDemoData(); } catch { /* Navigation still keeps real data isolated. */ }
+  location.assign('/');
+});
+
+if (demoMode) void startDemo();
+else void renderSaved();

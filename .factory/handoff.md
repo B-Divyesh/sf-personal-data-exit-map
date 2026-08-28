@@ -1,62 +1,67 @@
-# Handoff — Personal Data Exit Map v1
+# Repair handoff — Personal Data Exit Map 1.0.1
 
-## Independent verification — FAIL (2026-08-28)
+Work order: `personal-data-exit-map-repair-1`
 
-Candidate `ba2776ea0170ca7054942f585a40937d12092d05` was independently tested locally and at <https://personal-data-exit-map.sociobot.in>. The live deployment is byte-for-byte identical to the candidate production build.
+Verifier report: `e9c6b569251e38514cb6febff4afcdf3916b3340`
 
-**Release verdict: FAIL.** `.factory/claims.json` is missing, so the mandatory claims gate cannot run. The first screen has no one-click “Try it with sample data” action, `/demo` and `/?demo=1` are ordinary upload screens, no demo sandbox or `.factory/demo.md` exists, and the first screen does not plainly identify people leaving a service or preparing for lockout. These are explicit release blockers in the verification contract.
+Repaired candidate: `ba2776ea0170ca7054942f585a40937d12092d05`
 
-Core technical checks otherwise passed: `npm ci`, 3/3 unit tests, type-checked production build, 6/6 Playwright tests, live/offline archive inspection, signed-manifest tamper detection, local-only privacy interception, service-worker update/reload, zero axe violations across all live routes at desktop and 390 px, and Lighthouse 100/100/100/100. Secondary defects include missing 404/robots/sitemap/social metadata/CSP, 30-second caching on hashed assets, and some sub-44 px mobile links.
+Date: 2026-08-28 UTC
 
-Full commands, evidence, severity, and applicability notes are in [`.factory/verification.md`](verification.md). No product code was changed during verification.
+## What was repaired
 
-Completed 2026-08-28 for work order `personal-data-exit-map-build-1`.
+- **RB-1, claims:** added `.factory/claims.json` with 13 public claims. Every ID occurs in exactly one `@claim:<id>` Playwright test. The tests use the clean demo entry and assert outcomes including privacy, isolation, offline reload, supported inputs/layouts, signing, tamper detection, CSV/JSON contents, persistence, guides, free use, and accessibility.
+- **RB-2, demo:** added the first-screen **Try it with sample data** action and `/demo/` plus `/?demo=1`. It builds a realistic six-file Google Takeout ZIP in memory and runs the production worker/signing flow. Demo data and its signing key use `demo:personal-data-exit-map`; real data uses `personal-data-exit-map`. Reset and exit delete the demo store. `.factory/demo.md` documents the boundary.
+- **RB-3, first read:** changed the headline to “Map what leaves with you.” The 15-word support sentence names people leaving a service or preparing for lockout. The safe sample action explains what opens next. All first-screen copy is within the 22-word cap.
+- Added the designed 404 page and Azure 404 response override, canonical/Open Graph/Twitter metadata, a 1200×630 social image, Apple touch icon, `robots.txt`, and `sitemap.xml`.
+- Added CSP with `frame-ancestors`, Permissions Policy, immutable `/assets/*` caching, no-cache service worker/HTML policy, and explicit Web Manifest MIME configuration.
+- Raised the mobile brand and outbound guide link targets to 44 px. Skip-link activation now transfers focus to `main` on app and legal pages.
+- Replaced the premature “Ready offline” label with “Preparing offline access…” until `navigator.serviceWorker.ready` resolves.
+- Fixed the offline module reload root cause: Vite responses vary on `Origin`, while install-time precache requests do not. Same-origin cache lookup now ignores `Vary`, so cached JS and CSS load after a real offline reload.
+- Added ESLint, release-policy unit tests, route-wide axe coverage, social metadata regressions, and `.factory/copy-audit.md`.
 
-## What was built
+The archive inspector, classifier, local ECDSA signing, imports/exports, preservation checklist, service guides, original visual system, privacy boundary, and previously passing error/empty states remain intact.
 
-- A finished Vite + vanilla TypeScript local-first PWA using the product-specific blueprint drafting-sheet system in `.factory/design.md`.
-- Local inspection for ordinary single-disk ZIP central directories and standalone JSON/CSV exports. Parsing and SHA-256 hashing run in a dedicated Web Worker; archive bytes are transferred to that worker and are never uploaded or persisted.
-- Service-layout detection with precise support notes for common Google Takeout, Meta Accounts Center, X/Twitter, Mastodon, Discord, LinkedIn, and Reddit packages, plus an honest generic mode.
-- A category and format inventory showing file counts, uncompressed size, representative paths, and reusable/review/account-dependent status.
-- A persistent five-step preservation checklist, derived-map history in IndexedDB, confirmed deletion, assessment JSON import/export, and full inventory CSV export.
-- A signed `personal-data-exit-map/manifest-v1` containing the archive SHA-256, ZIP CRC-32 evidence, full directory inventory, parser limitations, public JWK, and a device-local ECDSA P-256/SHA-256 signature. Imported manifests are verified before their status is shown.
-- Static official exit guides for Google, Apple, Facebook/Instagram, X/Twitter, Mastodon, Reddit, Discord, LinkedIn, and TikTok.
-- Offline installation with a versioned service worker precache, generated-bundle injection, offline fallback, update toast, Web App Manifest, 192/512/maskable icons, and offline-safe legal pages.
-- Original generated blueprint dossier hero artwork, optimized from a 1536×1024 source PNG to a 74 KB 1200×800 WebP. Prompt, generation metadata, review criteria, and provenance are retained in `assets/src/` and `.factory/design.md`.
-- Responsive 390 px layout, complete keyboard/focus states, reduced-motion treatment, semantic landmarks, one H1 per page, alt text, high-contrast labelled statuses, empty/loading/error/offline states, and ≥44 px controls.
-- Privacy policy, terms, MIT license, and an operational README.
+## Clean verification evidence
 
-## Verification
-
-Run from `/work/repo`:
+Executed from `/work/repo` after a clean `npm ci`:
 
 ```sh
-npm install
+npm ci
+npm run lint
+npm run typecheck
 npm test
 npm run build
 npm run test:e2e
 ```
 
-Final local results:
-
-- `npm test`: 3/3 Vitest unit tests passed.
-- `npm run build`: passed TypeScript checks and produced `dist/index.html`; main app JS 28.41 KB uncompressed (10.35 KB gzip), deferred worker 3.07 KB, app CSS 18.33 KB (4.76 KB gzip), no font payload, hero WebP 74 KB.
-- `npm run test:e2e`: 6/6 Playwright tests passed across desktop Chromium and Pixel 5 emulation. Covered ZIP inspection, service/category results, Web Crypto manifest verification, persisted checklist, manifest download, privacy/terms routes, and a real `context.setOffline(true)` reload.
-- Playwright axe scan: zero serious or critical violations on desktop and mobile.
-- Factory `verify-url.sh`: HTTP 200, title/lang/main/alt/button checks passed, one H1, zero console/page errors; measured load 542 ms on local preview.
-- Lighthouse 12.8.2 mobile-class run on the final production build: Performance 100, Accessibility 100, Best Practices 100; FCP 1.1 s, LCP 1.5 s, TBT 0 ms, CLS 0, total transferred weight 98 KiB.
+- `npm ci`: 143 packages installed; 0 vulnerabilities.
+- `npm run lint`: passed with zero warnings.
+- `npm run typecheck`: passed.
+- `npm test`: 2 files, 6/6 unit/release-policy tests passed.
+- `npm run build`: passed and produced `dist/index.html`, `dist/demo/index.html`, legal routes, 404, SEO files, static response configuration, and service worker.
+- `npm run test:e2e`: 36/36 passed across desktop Chromium and Pixel 5. This includes all 13 claim tests on both projects and axe on `/`, `/demo/`, `/privacy/`, `/terms/`, and `/404.html` at desktop and 390 px.
+- Dedicated claim run: `npm run test:claims` passed 13/13 in Chromium. A source audit confirmed each claims ID has exactly one matching test tag.
+- Offline claim: after service-worker control, Playwright set the browser offline, reloaded `/demo/`, reset the demo while still offline, and regenerated the six-file signed map.
+- Privacy claim: a unique JSON secret produced only same-origin requests and was absent from IndexedDB assessments, cookies, localStorage, and sessionStorage.
+- Signature claim: Node Web Crypto independently verified the downloaded ECDSA P-256/SHA-256 manifest; a changed signed path imported as “Signature invalid”.
+- Factory `verify-url.sh` against the production preview: HTTP 200, 542 ms load, correct title/lang, one H1, main present, zero missing alts, zero unlabeled buttons, and zero console/page errors.
+- Lighthouse 12.8.2 mobile preset: Performance 99, Accessibility 100, Best Practices 100, SEO 100; FCP 1.4 s, LCP 1.8 s, TBT 0 ms, CLS 0, 100 KiB transferred.
+- Production payload: initial app JS 31.17 KB plus 0.77 KB helper; app CSS 20.31 KB; worker 3.07 KB; hero 74.19 KB. All are below contract budgets.
 - `git diff --check`: passed.
+- Package/consumer checks: not applicable; this is a static PWA, not a package or CLI.
+- Backend concurrency/rate-limit/identity checks: not applicable; the artifact has no application backend or authentication.
 
-## Known limits
+## Deployment
 
-- Parser v1 does not support ZIP64, multipart/split ZIPs, TAR archives, or password-based content extraction. It explains the corrective next step rather than guessing.
-- Classification uses paths and extensions. It does not parse changing service-internal schemas or prove that an export is complete. Users are asked to open a representative file.
-- Reading and hashing uses one in-memory `ArrayBuffer`; the UI caps files at 1.5 GB, but users on memory-constrained phones may need to request smaller ZIP parts.
-- A local ECDSA signature detects manifest alteration and binds it to that browser key. It is not identity verification, a trusted timestamp, or legal certification.
-- Official guide destinations naturally require a network connection; all in-app guide steps remain cached offline.
+Target: Azure Static Web App `sf-personal-data-exit-map`, custom domain <https://personal-data-exit-map.sociobot.in>, using `/opt/fleet/lib/deploy-static.sh personal-data-exit-map /work/repo/dist`.
 
-## Sensible next steps
+Live deployment and response evidence will be appended immediately after the production upload.
 
-- Add tested, versioned community parsers for high-value service schemas inside the worker boundary.
-- Add streaming hashing when a broadly supported browser primitive makes it possible without a heavy dependency.
-- Add fixture archives for more providers and non-UTF-8 ZIP file names.
+## Known product limits retained
+
+- Parser 1.0 does not support ZIP64, multipart/split ZIPs, TAR archives, or password-based content extraction.
+- Classification uses paths and extensions. It does not schema-validate changing service exports or prove completeness.
+- Reading and hashing uses one in-memory `ArrayBuffer`; the UI enforces the 1.5 GB safety limit.
+- A device-local signature detects manifest changes. It is not identity verification, a trusted timestamp, or legal certification.
+- Official guide destinations require a network connection; cached in-app steps and all local analysis remain available offline.

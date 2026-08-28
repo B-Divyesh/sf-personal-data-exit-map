@@ -4,6 +4,8 @@ Personal Data Exit Map is a free, installable local-first web app for people lea
 
 Live product: <https://personal-data-exit-map.sociobot.in>
 
+One-click demo: <https://personal-data-exit-map.sociobot.in/demo/>. It opens a six-file Google Takeout sample in the separate `demo:personal-data-exit-map` IndexedDB database. Resetting or leaving the demo deletes that database before real use.
+
 ## What it does
 
 - Reads ZIP central directories and standalone JSON/CSV exports in a dedicated Web Worker.
@@ -22,14 +24,21 @@ It does not collect credentials, extract encrypted entries, scrape services, mig
 Requires Node.js 20 or newer.
 
 ```sh
-npm install
+npm ci
 npm run dev
+npm run lint
+npm run typecheck
 npm test
 npm run build
+npm run test:claims
 npm run test:e2e
 ```
 
 The exact production build command is `npm run build`. It type-checks and builds the static multi-page app to `dist/`, with `dist/index.html` at the deploy root. `npm run preview` serves that output locally. Playwright is pinned to 1.58.2; in the factory image its browsers are supplied through `PLAYWRIGHT_BROWSERS_PATH`.
+
+Every public product claim is listed in [`.factory/claims.json`](.factory/claims.json). Each entry has one tagged Playwright test that runs from the demo sandbox. [`.factory/demo.md`](.factory/demo.md) documents its sample and storage boundary.
+
+Deploy the contents of `dist/` as an Azure Static Web App. `public/staticwebapp.config.json` supplies the response policies, cache rules, manifest MIME type, and designed 404 response; deployment itself is owned by the factory.
 
 ## Parser support and security model
 
@@ -47,6 +56,8 @@ The interface uses semantic landmarks, one page-level heading, labelled controls
 
 - [`.factory/brief.json`](.factory/brief.json) — product scope
 - [`.factory/design.md`](.factory/design.md) — blueprint visual system and generated-image provenance
+- [`.factory/claims.json`](.factory/claims.json) — public claims and their exact tests
+- [`.factory/demo.md`](.factory/demo.md) — demo sample and isolation model
 - [`.factory/handoff.md`](.factory/handoff.md) — verification record and known limitations
 
 ## License

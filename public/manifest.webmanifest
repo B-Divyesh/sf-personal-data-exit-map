@@ -3,7 +3,7 @@
   "short_name": "Exit Map",
   "description": "Inspect personal data exports locally and make a preservation plan.",
   "id": "/",
-  "start_url": "/?source=installed&v=1",
+  "start_url": "/?source=installed&v=1.0.1",
   "scope": "/",
   "display": "standalone",
   "background_color": "#F3F0E6",

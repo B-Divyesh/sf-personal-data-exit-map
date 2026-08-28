@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'node:path';
-import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 
 const rootDirectory = new URL('.', import.meta.url).pathname;
 
@@ -20,14 +20,26 @@ function injectServiceWorkerAssets() {
   };
 }
 
+function createDemoEntry() {
+  return {
+    name: 'create-demo-entry',
+    closeBundle() {
+      const output = resolve(rootDirectory, 'dist');
+      mkdirSync(resolve(output, 'demo'), { recursive: true });
+      writeFileSync(resolve(output, 'demo/index.html'), readFileSync(resolve(output, 'index.html')));
+    }
+  };
+}
+
 export default defineConfig({
-  plugins: [injectServiceWorkerAssets()],
+  plugins: [injectServiceWorkerAssets(), createDemoEntry()],
   build: {
     target: 'es2022',
     sourcemap: true,
     rollupOptions: {
       input: {
         app: resolve(rootDirectory, 'index.html'),
+        notFound: resolve(rootDirectory, '404.html'),
         privacy: resolve(rootDirectory, 'privacy/index.html'),
         terms: resolve(rootDirectory, 'terms/index.html')
       }

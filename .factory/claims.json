@@ -1,0 +1,93 @@
+[
+  {
+    "id": "demo-sandbox",
+    "claim": "Try it with sample data in a separate store that resets and is discarded before real use",
+    "where": "landing primary action, demo banner, README",
+    "test": "npm run test:claims -- --grep @claim:demo-sandbox",
+    "sandbox": "fresh browser context; create the real database, enter /demo/, assert six-file sample and separate demo: database, reset, then exit"
+  },
+  {
+    "id": "offline-reload",
+    "claim": "Works offline after the first visit",
+    "where": "landing facts, privacy page, README",
+    "test": "npm run test:claims -- --grep @claim:offline-reload",
+    "sandbox": "fresh browser context at /demo/; wait for service worker control, set context offline, reload, reset, and assert sample results"
+  },
+  {
+    "id": "local-only",
+    "claim": "Selected archive contents are processed on-device, never uploaded, and never stored in assessments",
+    "where": "landing figure, upload station, privacy page, README",
+    "test": "npm run test:claims -- --grep @claim:local-only",
+    "sandbox": "fresh /demo/ context; inspect a JSON file containing a unique secret, intercept all requests, inspect browser storage, cookies, and password fields"
+  },
+  {
+    "id": "input-support",
+    "claim": "Opens ordinary ZIP, standalone JSON, and CSV exports with a 1.5 GB safety limit",
+    "where": "upload station, README",
+    "test": "npm run test:claims -- --grep @claim:input-support",
+    "sandbox": "fresh /demo/ context; inspect ZIP, JSON, and CSV fixtures, then submit a synthetic file one byte above the exact limit"
+  },
+  {
+    "id": "category-map",
+    "claim": "Maps export files into reusable, review, and account-dependent categories with a five-step preservation plan",
+    "where": "landing, results, README",
+    "test": "npm run test:claims -- --grep @claim:category-map",
+    "sandbox": "fresh /demo/ context seeded with the six-file Google sample; assert categories, statuses, and checklist length"
+  },
+  {
+    "id": "supported-layouts",
+    "claim": "Recognizes documented Google, Meta, X, Mastodon, Discord, LinkedIn, and Reddit export layouts",
+    "where": "parser support notes, README",
+    "test": "npm run test:claims -- --grep @claim:supported-layouts",
+    "sandbox": "fresh /demo/ context; inspect one purpose-built ZIP fixture for every documented service rule and assert the visible match"
+  },
+  {
+    "id": "signed-manifest",
+    "claim": "Downloads a manifest with the archive SHA-256 and a device-local ECDSA P-256 signature",
+    "where": "results export panel, README",
+    "test": "npm run test:claims -- --grep @claim:signed-manifest",
+    "sandbox": "fresh /demo/ context; download the sample manifest and independently verify its hash shape, algorithm, and signature with Web Crypto"
+  },
+  {
+    "id": "tamper-detection",
+    "claim": "Labels a signed assessment invalid when its manifest is changed",
+    "where": "terms page, README",
+    "test": "npm run test:claims -- --grep @claim:tamper-detection",
+    "sandbox": "fresh /demo/ context; export assessment JSON, change one signed path, import it, and assert Signature invalid"
+  },
+  {
+    "id": "data-export",
+    "claim": "Exports the complete assessment as JSON and one inventory CSV row per mapped file",
+    "where": "results export panel, README",
+    "test": "npm run test:claims -- --grep @claim:data-export",
+    "sandbox": "fresh /demo/ context; download both formats, parse them, and compare row and entry counts to the six-file sample"
+  },
+  {
+    "id": "persistence",
+    "claim": "Keeps derived assessments and checklist state in IndexedDB across reloads",
+    "where": "saved maps, privacy page, README",
+    "test": "npm run test:claims -- --grep @claim:persistence",
+    "sandbox": "fresh /demo/ context; check one preservation item, reload, and assert both the item and completion count persist"
+  },
+  {
+    "id": "service-guides",
+    "claim": "Provides nine manual service export destinations",
+    "where": "exit guides, README",
+    "test": "npm run test:claims -- --grep @claim:service-guides",
+    "sandbox": "fresh /demo/ context; assert nine guide records and nine HTTPS destinations"
+  },
+  {
+    "id": "free-no-account",
+    "claim": "The product is free and the sample flow needs no account, login, or payment",
+    "where": "landing facts, README",
+    "test": "npm run test:claims -- --grep @claim:free-no-account",
+    "sandbox": "fresh /demo/ context; complete sample analysis while checking the UI and requests for credential or billing flows"
+  },
+  {
+    "id": "accessible-controls",
+    "claim": "The interface supports keyboard use, 390 px screens, visible skip focus, and no serious or critical axe violations",
+    "where": "README accessibility section",
+    "test": "npm run test:claims -- --grep @claim:accessible-controls",
+    "sandbox": "fresh /demo/ context at 390 px; run axe, activate the skip link by keyboard, check overflow, and measure previously failing targets"
+  }
+]

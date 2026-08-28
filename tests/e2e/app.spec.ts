@@ -24,7 +24,7 @@ function sampleZip(paths: Array<{ name: string; size: number }>): Buffer {
 
 test('inspects an export and creates a signed preservation map', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('h1')).toHaveText(/Know what leaves/);
+  await expect(page.locator('h1')).toHaveText(/Map what leaves/);
   const accessibility = await new AxeBuilder({ page: page as never }).analyze();
   expect(accessibility.violations.filter((item) => ['serious', 'critical'].includes(item.impact ?? ''))).toEqual([]);
 
@@ -54,7 +54,7 @@ test('shell and saved map interface remain available offline', async ({ page, co
   await page.waitForFunction(() => navigator.serviceWorker.controller !== null);
   await context.setOffline(true);
   await page.reload();
-  await expect(page.locator('h1')).toHaveText(/Know what leaves/);
+  await expect(page.locator('h1')).toHaveText(/Map what leaves/);
   await expect(page.locator('#saved-title')).toBeVisible();
 });
 
@@ -65,4 +65,25 @@ test('legal pages and mobile layout expose one clear main heading', async ({ pag
   await expect(page.locator('h1')).toHaveText('Privacy');
   await page.goto('/terms/');
   await expect(page.locator('h1')).toHaveText('Terms');
+  await page.goto('/404.html');
+  await expect(page.locator('h1')).toHaveText('This page is not on the map');
+});
+
+test('every public page includes canonical and social metadata', async ({ page }) => {
+  for (const route of ['/', '/demo/', '/privacy/', '/terms/']) {
+    await page.goto(route);
+    await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
+    await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveCount(1);
+    await expect(page.locator('meta[property="og:image"]')).toHaveCount(1);
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image');
+  }
+});
+
+test('public routes have no serious or critical accessibility violations', async ({ page }) => {
+  for (const route of ['/', '/demo/', '/privacy/', '/terms/', '/404.html']) {
+    await page.goto(route);
+    if (route === '/demo/') await expect(page.locator('#results')).toBeVisible();
+    const accessibility = await new AxeBuilder({ page: page as never }).analyze();
+    expect(accessibility.violations.filter((item) => ['serious', 'critical'].includes(item.impact ?? '')), route).toEqual([]);
+  }
 });

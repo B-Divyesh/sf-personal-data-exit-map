@@ -60,6 +60,7 @@ The hero illustration is a top-down architectural survey of a translucent export
 - Date: 2026-08-28.
 - License/provenance: original AI-generated asset commissioned for this product; no external source imagery.
 - Source PNG and exact prompt sidecar live in `assets/src/`. Shipping WebP is optimized to ≤300 KB with explicit dimensions. The footer discloses generated imagery.
+- `public/og-image.jpg` is a 1200×630 center crop of that same original artwork. `public/apple-touch-icon.png` is a 180×180 resize of the original product icon; neither introduces outside source material.
 
 ## Iconography
 

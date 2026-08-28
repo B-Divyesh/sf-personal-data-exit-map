@@ -1,11 +1,21 @@
 import type { Assessment } from './types';
 
-const DB_NAME = 'personal-data-exit-map';
+export const REAL_DB_NAME = 'personal-data-exit-map';
+export const DEMO_DB_NAME = 'demo:personal-data-exit-map';
 const DB_VERSION = 1;
+
+export function isDemoMode(): boolean {
+  const url = new URL(window.location.href);
+  return url.pathname.replace(/\/+$/, '') === '/demo' || url.searchParams.get('demo') === '1';
+}
+
+function databaseName(): string {
+  return isDemoMode() ? DEMO_DB_NAME : REAL_DB_NAME;
+}
 
 function openDatabase(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    const request = indexedDB.open(databaseName(), DB_VERSION);
     request.onupgradeneeded = () => {
       const db = request.result;
       if (!db.objectStoreNames.contains('assessments')) db.createObjectStore('assessments', { keyPath: 'id' });
@@ -13,6 +23,15 @@ function openDatabase(): Promise<IDBDatabase> {
     };
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error ?? new Error('Local storage could not be opened.'));
+  });
+}
+
+export function discardDemoData(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.deleteDatabase(DEMO_DB_NAME);
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error ?? new Error('The demo could not be reset.'));
+    request.onblocked = () => reject(new Error('Close other demo tabs, then reset the demo again.'));
   });
 }
 

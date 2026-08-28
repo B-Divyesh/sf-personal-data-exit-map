@@ -4,36 +4,55 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#123B5D" />
-    <meta name="description" content="Inspect personal data export archives locally, map what is reusable, and leave with a preservation plan." />
+    <meta name="description" content="Map a personal data export on your device and see what you can preserve before leaving a service." />
+    <link rel="canonical" href="https://personal-data-exit-map.sociobot.in/" />
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    <title>Personal Data Exit Map — inspect exports locally</title>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Personal Data Exit Map — map exports locally" />
+    <meta property="og:description" content="See what a personal export contains and what remains tied to the account." />
+    <meta property="og:url" content="https://personal-data-exit-map.sociobot.in/" />
+    <meta property="og:image" content="https://personal-data-exit-map.sociobot.in/og-image.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Personal Data Exit Map — map exports locally" />
+    <meta name="twitter:description" content="See what a personal export contains and what remains tied to the account." />
+    <meta name="twitter:image" content="https://personal-data-exit-map.sociobot.in/og-image.jpg" />
+    <title>Personal Data Exit Map — map exports locally</title>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to main content</a>
+    <aside class="demo-banner" id="demo-banner" aria-label="Demo mode" hidden>
+      <strong>Demo — sample data, nothing is saved</strong>
+      <span>It uses a separate temporary browser store.</span>
+      <div><button id="reset-demo" type="button">Reset demo</button><button id="start-real" type="button">Start for real</button></div>
+    </aside>
     <header class="site-header">
       <a class="brand" href="/" aria-label="Personal Data Exit Map home">
         <span class="brand-mark" aria-hidden="true">↗</span>
         <span>Exit map <small>Local survey // v1.0</small></span>
       </a>
       <nav aria-label="Main navigation">
+        <a href="/demo/">Demo</a>
         <a href="#survey">Inspect</a>
-        <a href="#saved">Saved maps</a>
         <a href="#guides">Exit guides</a>
         <button class="text-button" id="install-button" type="button" hidden>Install</button>
       </nav>
-      <p class="network-status" id="network-status"><span aria-hidden="true"></span> <span>Ready offline</span></p>
+      <p class="network-status" id="network-status"><span aria-hidden="true"></span> <span>Preparing offline access…</span></p>
     </header>
 
     <main id="main">
       <section class="hero" aria-labelledby="page-title">
         <div class="hero-copy">
           <p class="drawing-label">Drawing 01 / exit readiness survey</p>
-          <h1 id="page-title">Know what leaves <em>with you.</em></h1>
-          <p class="lede">Open a personal data export and get a sober map of what it contains, what can be reused, and what still depends on the account.</p>
-          <a class="primary-action" href="#survey">Inspect an export <span aria-hidden="true">↓</span></a>
+          <h1 id="page-title">Map what leaves <em>with you.</em></h1>
+          <p class="lede">For people leaving a service or preparing for lockout, it shows what they can preserve.</p>
+          <div class="hero-actions">
+            <a class="primary-action" href="/demo/">Try it with sample data <span aria-hidden="true">→</span></a>
+            <span>A prepared Google export opens next.</span>
+          </div>
           <ul class="trust-line" aria-label="Privacy promises">
-            <li>No upload</li><li>No password</li><li>Works offline</li>
+            <li>No upload</li><li>Works offline after first visit</li><li>Free to use</li>
           </ul>
         </div>
         <figure class="hero-figure">
@@ -43,11 +62,23 @@
         </figure>
       </section>
 
+      <section class="method-section ruled-section" aria-labelledby="method-title">
+        <div class="section-heading">
+          <p class="drawing-label">Route plan / 00</p>
+          <h2 id="method-title">How it works</h2>
+        </div>
+        <ol class="method-list">
+          <li><strong>Open an export</strong><span>Choose a ZIP, JSON, or CSV file from a service.</span></li>
+          <li><strong>Read the map</strong><span>Review categories, formats, and account-dependent records.</span></li>
+          <li><strong>Keep evidence</strong><span>Download the signed manifest and inventory files.</span></li>
+        </ol>
+      </section>
+
       <section class="survey-section ruled-section" id="survey" aria-labelledby="survey-title">
         <div class="section-heading">
           <p class="drawing-label">Survey station / 01</p>
           <h2 id="survey-title">Open your export</h2>
-          <p>Choose one ZIP archive, or a standalone JSON or CSV export. Files are read in a dedicated browser worker and never sent anywhere.</p>
+          <p>Choose a ZIP, JSON, or CSV export. A browser worker reads it here and never sends it away.</p>
         </div>
 
         <div class="upload-sheet" id="drop-zone">
@@ -143,12 +174,20 @@
         <div class="guide-list" id="guide-list"></div>
         <p class="no-guides" id="no-guides" hidden>No matching guide yet. Check the service’s privacy or account settings for “Download your data”, then inspect the resulting ZIP here.</p>
       </section>
+
+      <section class="limits-section ruled-section" aria-labelledby="limits-title">
+        <div>
+          <p class="drawing-label">Boundary note / 06</p>
+          <h2 id="limits-title">Know what the map cannot preserve</h2>
+        </div>
+        <p>It cannot restore an account, move followers, prove an export is complete, or replace the original archive.</p>
+      </section>
     </main>
 
     <footer>
-      <div class="footer-brand"><span aria-hidden="true">↗</span><strong>Personal Data Exit Map</strong><p>A free, local-first preservation utility. No universal import claims.</p></div>
-      <nav aria-label="Legal"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="https://github.com/B-Divyesh/sf-personal-data-exit-map">Source</a></nav>
-      <p class="provenance">Blueprint dossier artwork is original AI-generated imagery; provenance is documented in the project.</p>
+      <div class="footer-brand"><span aria-hidden="true">↗</span><strong>Personal Data Exit Map</strong><p>Map an export before leaving a service.</p></div>
+      <nav aria-label="Legal"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="https://github.com/B-Divyesh/sf-personal-data-exit-map">Source ↗</a></nav>
+      <p class="provenance">Built by Param Factory · Release 1.0.1 · Blueprint artwork is original AI-generated imagery with documented provenance.</p>
     </footer>
 
     <dialog id="delete-dialog" aria-labelledby="delete-title">
