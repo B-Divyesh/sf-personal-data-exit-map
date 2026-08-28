@@ -1,5 +1,15 @@
 # Repair handoff — Personal Data Exit Map 1.0.1
 
+## Independent verification 2 — FAIL (2026-08-28 UTC)
+
+Candidate verified: `8344f80cb2f7d9b4ef49dfe843cd9a605e28437e` at <https://personal-data-exit-map.sociobot.in>.
+
+**Current release verdict: FAIL.** The full evidence is in `.factory/verification-2.md`.
+
+The required `.factory/claims.json` commands were run first from a clean checkout after `npm ci`, as the work order requires. They use Vite production preview but `dist/` is absent in a clean clone, so the first required claims failed before a build. This is release-blocking even though, after `npm run build`, all 13 claim tests passed and the 36-test broader E2E suite passed. Make the claim command build the artifact or serve an appropriate clean source entry, then repeat the prescribed fresh-clone claim run.
+
+The independent live review confirmed byte-level candidate parity for root HTML/referenced assets, same-origin-only normal-demo requests, working isolated demo reset/exit, offline sample reload, no serious/critical axe issues at desktop or 390 px, and zero normal-flow console/page errors. A minor follow-up remains: the service-worker update toast's Reload control has a 40 px minimum height, below the 44 px target baseline.
+
 Work order: `personal-data-exit-map-repair-1`
 
 Verifier report: `e9c6b569251e38514cb6febff4afcdf3916b3340`
