@@ -56,7 +56,19 @@ npm run test:e2e
 
 Target: Azure Static Web App `sf-personal-data-exit-map`, custom domain <https://personal-data-exit-map.sociobot.in>, using `/opt/fleet/lib/deploy-static.sh personal-data-exit-map /work/repo/dist`.
 
-Live deployment and response evidence will be appended immediately after the production upload.
+Repair commit `65c30a2` was pushed to `origin/main`. Deployment `2b7b5d8d-22d2-4a5d-b17e-e8ac444310fa` completed successfully to the existing Standard static app in Central US (`agreeable-mushroom-04df2bb10.7.azurestaticapps.net`). The custom domain remained `Ready` and returned HTTPS 200.
+
+Live verification after deployment:
+
+- Factory `verify-url.sh`: HTTP 200, 873 ms load, expected title and `lang`, one H1, main present, zero missing alts, zero unlabeled buttons, and zero console/page errors.
+- SHA-256 comparison: all 24 public non-map files in `dist/` matched the live domain byte-for-byte. `staticwebapp.config.json` is deployment configuration and is correctly not publicly served.
+- `/demo/`, `/privacy/`, and `/terms/` return 200. An unknown path returns the designed 404 body with HTTP 404. `robots.txt` and `sitemap.xml` return 200.
+- The Web Manifest returns `application/manifest+json`. The hashed app JS returns `Cache-Control: public, max-age=31536000, immutable`.
+- Live root responses include HSTS, CSP with `frame-ancestors 'none'`, Permissions Policy, strict referrer policy, and `nosniff`.
+- Azure identity: resource `sf-personal-data-exit-map`, Standard SKU, Central US, expected default hostname and custom domain.
+- Fresh 390 px live demo: correct demo title/banner, Google Takeout and six mapped files, zero overflow, only `demo:personal-data-exit-map`, active `/sw.js`, and `exit-map-v1.0.1-shell` cache. Axe reported zero serious/critical violations; there were zero third-party requests and zero console/page errors.
+- Live offline reload retained the Google sample and reported “Offline — local tools ready”.
+- Controlled update verification served a byte-changed worker, observed “A refreshed drawing is ready”, activated it through **Reload**, reloaded successfully, and produced zero console/page errors.
 
 ## Known product limits retained
 
