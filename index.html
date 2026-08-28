@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#123B5D" />
+    <meta name="description" content="Inspect personal data export archives locally, map what is reusable, and leave with a preservation plan." />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <title>Personal Data Exit Map — inspect exports locally</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="Personal Data Exit Map home">
+        <span class="brand-mark" aria-hidden="true">↗</span>
+        <span>Exit map <small>Local survey // v1.0</small></span>
+      </a>
+      <nav aria-label="Main navigation">
+        <a href="#survey">Inspect</a>
+        <a href="#saved">Saved maps</a>
+        <a href="#guides">Exit guides</a>
+        <button class="text-button" id="install-button" type="button" hidden>Install</button>
+      </nav>
+      <p class="network-status" id="network-status"><span aria-hidden="true"></span> <span>Ready offline</span></p>
+    </header>
+
+    <main id="main">
+      <section class="hero" aria-labelledby="page-title">
+        <div class="hero-copy">
+          <p class="drawing-label">Drawing 01 / exit readiness survey</p>
+          <h1 id="page-title">Know what leaves <em>with you.</em></h1>
+          <p class="lede">Open a personal data export and get a sober map of what it contains, what can be reused, and what still depends on the account.</p>
+          <a class="primary-action" href="#survey">Inspect an export <span aria-hidden="true">↓</span></a>
+          <ul class="trust-line" aria-label="Privacy promises">
+            <li>No upload</li><li>No password</li><li>Works offline</li>
+          </ul>
+        </div>
+        <figure class="hero-figure">
+          <span class="coordinate" aria-hidden="true">A–01 / 32°</span>
+          <img src="/assets/hero-dossier.webp" width="1200" height="800" alt="Blueprint-style drafting table with a layered data dossier mapped into an archival box" fetchpriority="high" decoding="async" />
+          <figcaption>Your archive stays on this device. We inspect names, sizes, formats, and the archive checksum.</figcaption>
+        </figure>
+      </section>
+
+      <section class="survey-section ruled-section" id="survey" aria-labelledby="survey-title">
+        <div class="section-heading">
+          <p class="drawing-label">Survey station / 01</p>
+          <h2 id="survey-title">Open your export</h2>
+          <p>Choose one ZIP archive, or a standalone JSON or CSV export. Files are read in a dedicated browser worker and never sent anywhere.</p>
+        </div>
+
+        <div class="upload-sheet" id="drop-zone">
+          <div class="registration-mark" aria-hidden="true"></div>
+          <svg class="upload-icon" width="68" height="68" viewBox="0 0 68 68" aria-hidden="true"><path d="M12 5h31l13 13v45H12zM43 5v14h13M23 39l11-11 11 11M34 28v24"/></svg>
+          <h3>Place an export on the drawing board</h3>
+          <p>ZIP, JSON, or CSV · up to 1.5 GB · archive bytes are not saved</p>
+          <label class="file-button" for="archive-input">Choose an export</label>
+          <input id="archive-input" type="file" accept=".zip,.json,.csv,application/zip,application/json,text/csv" />
+          <p class="drop-note">or drag and drop it here</p>
+        </div>
+
+        <div class="analysis-progress" id="analysis-progress" hidden aria-live="polite">
+          <div class="progress-copy"><strong id="progress-label">Reading the archive locally…</strong><span id="progress-value">0%</span></div>
+          <div class="progress-track" role="progressbar" aria-label="Archive inspection progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="progress-bar"></span></div>
+          <p>Keep this tab open. Nothing is being uploaded.</p>
+        </div>
+        <div class="notice error-notice" id="analysis-error" role="alert" hidden></div>
+      </section>
+
+      <section class="results-section" id="results" aria-labelledby="results-title" hidden>
+        <div class="results-masthead">
+          <div>
+            <p class="drawing-label">Assessment / <span id="assessment-date"></span></p>
+            <h2 id="results-title">Your exit map</h2>
+            <p id="file-summary"></p>
+          </div>
+          <div class="stamp" id="signature-stamp"><span>Signed</span>Manifest verified</div>
+        </div>
+
+        <div class="service-reading">
+          <div><span class="field-label">Export pattern</span><strong id="service-name"></strong></div>
+          <div><span class="field-label">Detection</span><strong id="service-confidence"></strong></div>
+          <button class="detail-button" id="support-toggle" type="button" aria-expanded="false" aria-controls="support-detail">Support notes</button>
+          <p id="support-detail" hidden></p>
+        </div>
+
+        <div class="summary-grid" aria-label="Assessment summary">
+          <div class="metric reusable"><span class="metric-mark" aria-hidden="true">✓</span><strong id="reusable-count">0</strong><span>reusable categories</span></div>
+          <div class="metric review"><span class="metric-mark" aria-hidden="true">△</span><strong id="review-count">0</strong><span>need review</span></div>
+          <div class="metric dependent"><span class="metric-mark" aria-hidden="true">×</span><strong id="dependent-count">0</strong><span>account-dependent</span></div>
+          <div class="metric volume"><span class="metric-mark" aria-hidden="true">∑</span><strong id="total-size">0 B</strong><span>mapped contents</span></div>
+        </div>
+
+        <div class="warning-stack" id="warning-stack" aria-live="polite"></div>
+
+        <div class="inventory-heading">
+          <div><p class="drawing-label">Bill of materials / 02</p><h3>Where your data is</h3></div>
+          <p>Select a row to see example paths. Up to 100 paths per category are retained in the local assessment.</p>
+        </div>
+        <div class="inventory" id="inventory"></div>
+
+        <div class="preservation-grid">
+          <div>
+            <p class="drawing-label">Preservation route / 03</p>
+            <h3>Leave with a verified copy</h3>
+            <p>These checks are stored only in this browser. A downloaded archive preserves files—not platform access, legal rights, or live social relationships.</p>
+            <div class="completion-meter"><span id="completion-label">0 of 5 checked</span><div><i id="completion-bar"></i></div></div>
+          </div>
+          <ol class="checklist" id="checklist"></ol>
+        </div>
+
+        <div class="export-panel">
+          <div><h3>Take the map with you</h3><p>The manifest includes the archive SHA-256, file inventory, parser limits, public verification key, and device-local signature.</p></div>
+          <div class="button-group">
+            <button class="primary-button" id="download-manifest" type="button">Download signed manifest</button>
+            <button class="secondary-button" id="export-json" type="button">Export assessment JSON</button>
+            <button class="secondary-button" id="export-csv" type="button">Export inventory CSV</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="saved-section ruled-section" id="saved" aria-labelledby="saved-title">
+        <div class="section-heading inline-heading">
+          <div><p class="drawing-label">Local cabinet / 04</p><h2 id="saved-title">Saved maps</h2></div>
+          <label class="secondary-button import-button" for="assessment-import">Import assessment JSON</label>
+          <input id="assessment-import" type="file" accept="application/json,.json" />
+        </div>
+        <p class="storage-note">Assessments contain derived file names, sizes, and checklist state—not the archive contents. They stay in this browser until you remove them.</p>
+        <div id="saved-list" class="saved-list"></div>
+      </section>
+
+      <section class="guide-section" id="guides" aria-labelledby="guides-title">
+        <div class="section-heading">
+          <p class="drawing-label">Field references / 05</p>
+          <h2 id="guides-title">Need the export first?</h2>
+          <p>Use the service’s official route. We never ask for a login, and these links are available even when a parser is not.</p>
+        </div>
+        <div class="guide-tools">
+          <label for="guide-search">Find a service</label>
+          <input id="guide-search" type="search" placeholder="Try Google, Mastodon, LinkedIn…" autocomplete="off" />
+        </div>
+        <div class="guide-list" id="guide-list"></div>
+        <p class="no-guides" id="no-guides" hidden>No matching guide yet. Check the service’s privacy or account settings for “Download your data”, then inspect the resulting ZIP here.</p>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-brand"><span aria-hidden="true">↗</span><strong>Personal Data Exit Map</strong><p>A free, local-first preservation utility. No universal import claims.</p></div>
+      <nav aria-label="Legal"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="https://github.com/B-Divyesh/sf-personal-data-exit-map">Source</a></nav>
+      <p class="provenance">Blueprint dossier artwork is original AI-generated imagery; provenance is documented in the project.</p>
+    </footer>
+
+    <dialog id="delete-dialog" aria-labelledby="delete-title">
+      <form method="dialog">
+        <p class="drawing-label">Remove local record</p>
+        <h2 id="delete-title">Remove this saved map?</h2>
+        <p id="delete-detail">This removes derived inventory and checklist data from this browser. Your original archive is not affected.</p>
+        <div class="dialog-actions"><button class="secondary-button" value="cancel">Keep map</button><button class="danger-button" id="confirm-delete" value="confirm">Remove map</button></div>
+      </form>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden><span id="toast-message"></span><button id="toast-action" type="button" hidden>Reload</button></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
