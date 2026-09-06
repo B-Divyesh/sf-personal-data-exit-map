@@ -36,12 +36,22 @@ test('@claim:demo-sandbox opens sample data in an isolated resettable store', as
   await page.goto('/');
   await expect(page.getByRole('link', { name: 'Try it with sample data' })).toBeVisible();
   await page.evaluate(async () => {
-    await new Promise<void>((resolve, reject) => {
+    const database = await new Promise<IDBDatabase>((resolve, reject) => {
       const request = indexedDB.open('personal-data-exit-map', 1);
-      request.onupgradeneeded = () => request.result.createObjectStore('assessments', { keyPath: 'id' });
-      request.onsuccess = () => { request.result.close(); resolve(); };
+      request.onupgradeneeded = () => {
+        request.result.createObjectStore('assessments', { keyPath: 'id' });
+        request.result.createObjectStore('settings');
+      };
+      request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
+    const transaction = database.transaction('settings', 'readwrite');
+    transaction.objectStore('settings').put('real-state', 'demo-boundary-sentinel');
+    await new Promise<void>((resolve, reject) => {
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+    });
+    database.close();
   });
   await page.getByRole('link', { name: 'Try it with sample data' }).click();
   await expect(page).toHaveURL(/\/demo\/$/);
@@ -57,6 +67,20 @@ test('@claim:demo-sandbox opens sample data in an isolated resettable store', as
   await page.waitForLoadState('domcontentloaded');
   await expect(page.locator('h1')).toBeVisible();
   await expect.poll(() => page.evaluate(async () => (await indexedDB.databases()).map((database) => database.name))).not.toContain('demo:personal-data-exit-map');
+  await expect.poll(() => page.evaluate(async () => {
+    const database = await new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open('personal-data-exit-map');
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    const value = await new Promise<unknown>((resolve, reject) => {
+      const request = database.transaction('settings').objectStore('settings').get('demo-boundary-sentinel');
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    database.close();
+    return value;
+  })).toBe('real-state');
 });
 
 test('@claim:offline-reload reloads and analyzes the sample while offline', async ({ page, context }) => {
