@@ -10,7 +10,7 @@ Verdict: **PASS — release blocker and minor target issue repaired.**
 - Final verified implementation commit: `41a71848329099464a2ab21d416b240c6b1ad900`. The two commits after the repair are test-only reliability and demo-boundary proofs.
 - Deployment build commit: `8cfc8264957b8b1d733953a0093eba7025102f09`; deployment `1e27cc30-481e-40bd-8924-bc199e53fa77` succeeded on the existing `sf-personal-data-exit-map` static app.
 - The 24 public non-source-map files from the final `41a7184` build exactly match HTTPS production bytes. The final commit changed tests only, so no additional production image was needed.
-- Documentation/report commit: this handoff is committed after the implementation and does not change the deployed artifact.
+- Documentation/report commit: `e36fd923487bdc91a53d19f8d711500881d9441a`, committed after implementation and with no deployed-artifact change.
 
 ## What changed
 
