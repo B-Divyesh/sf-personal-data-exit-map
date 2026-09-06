@@ -54,6 +54,8 @@ test('@claim:demo-sandbox opens sample data in an isolated resettable store', as
   await expect(page.locator('#completion-label')).toContainText('0 of 5');
   await page.getByRole('button', { name: 'Start for real' }).click();
   await expect(page).toHaveURL(/\/$/);
+  await page.waitForLoadState('domcontentloaded');
+  await expect(page.locator('h1')).toBeVisible();
   await expect.poll(() => page.evaluate(async () => (await indexedDB.databases()).map((database) => database.name))).not.toContain('demo:personal-data-exit-map');
 });
 
