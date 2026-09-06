@@ -1,8 +1,22 @@
-# Repair handoff — Personal Data Exit Map 1.0.1
+# Verification 3 handoff — Personal Data Exit Map 1.0.1
 
 Date: 2026-09-06 UTC
-Work order: `personal-data-exit-map-repair-2`
-Verdict: **PASS — release blocker and minor target issue repaired.**
+Work order: `personal-data-exit-map-verify-3`
+Verdict: **FAIL — one minor finding and one untested public claim.**
+
+## Verification 3 result
+
+Independent QA reviewed implementation `41a71848329099464a2ab21d416b240c6b1ad900` from documentation baseline `d26f3c74bdbafcc21e06c067e7a7d7cfe55515bd`. No product code was changed.
+
+All 13 exact claim commands passed from a clean checkout. Lint, typecheck, 6/6 unit tests, build, and 38/38 E2E tests passed. Fresh live desktop and phone checks passed the job/audience/action test, sample/reset/exit flow, real IndexedDB sentinel check, offline reload, same-origin request check, recovery paths, route checks, axe checks, and 24-file artifact parity. Lighthouse 13.4.1 completed cleanly at 100/100/100/100 with LCP 1.22 s, TBT 64 ms, and CLS 0.
+
+One minor finding prevents PASS. The README says the interface has targets at least 44 px, but live home header links are 21.69 px high and footer links are 24.80 px high. The claim tests cover the brand, one guide link, and Reload, but not these links. Finding count: 1. Untested claim count: 1.
+
+Full report: [`.factory/verification-3.md`](verification-3.md). Evidence: `/work/.evidence/personal-data-exit-map-verify-3/`.
+
+## Prior repair record
+
+The following sections record the preceding `personal-data-exit-map-repair-2` work and its then-current result.
 
 ## Release identity
 
