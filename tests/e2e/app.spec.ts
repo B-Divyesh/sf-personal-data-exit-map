@@ -87,3 +87,13 @@ test('public routes have no serious or critical accessibility violations', async
     expect(accessibility.violations.filter((item) => ['serious', 'critical'].includes(item.impact ?? '')), route).toEqual([]);
   }
 });
+
+test('the service-worker update prompt has a touch-sized Reload control', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('#toast, #toast-action').evaluateAll((nodes) => {
+    nodes.forEach((node) => { (node as HTMLElement).hidden = false; });
+  });
+  const reload = await page.getByRole('button', { name: 'Reload' }).boundingBox();
+  expect(reload?.width).toBeGreaterThanOrEqual(44);
+  expect(reload?.height).toBeGreaterThanOrEqual(44);
+});

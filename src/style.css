@@ -231,7 +231,7 @@ dialog::backdrop { background: rgba(18,59,93,.55); }
 dialog p:not(.drawing-label) { color: var(--muted); }
 .dialog-actions { display: flex; justify-content: end; gap: 12px; margin-top: 24px; }
 .toast { position: fixed; z-index: 30; right: max(20px, env(safe-area-inset-right)); bottom: max(20px, env(safe-area-inset-bottom)); display: flex; align-items: center; gap: 16px; max-width: min(440px, calc(100% - 40px)); border: 2px solid var(--ink); background: var(--sheet); padding: 13px 16px; box-shadow: 7px 7px 0 var(--ink); }
-.toast button { min-height: 40px; border: 0; background: var(--orange); color: white; padding: 6px 12px; font-weight: 800; }
+.toast button { min-width: 44px; min-height: 44px; border: 0; background: var(--orange); color: white; padding: 6px 12px; font-weight: 800; }
 
 @media (max-width: 900px) {
   .site-header { grid-template-columns: 1fr auto; }

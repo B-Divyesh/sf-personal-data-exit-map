@@ -36,6 +36,8 @@ npm run test:e2e
 
 The exact production build command is `npm run build`. It type-checks and builds the static multi-page app to `dist/`, with `dist/index.html` at the deploy root. `npm run preview` serves that output locally. Playwright is pinned to 1.58.2; in the factory image its browsers are supplied through `PLAYWRIGHT_BROWSERS_PATH`.
 
+`npm run test:claims` builds the production artifact itself before starting the preview. It can therefore be run directly after `npm ci`, including each exact command listed in the claims inventory.
+
 Every public product claim is listed in [`.factory/claims.json`](.factory/claims.json). Each entry has one tagged Playwright test that runs from the demo sandbox. [`.factory/demo.md`](.factory/demo.md) documents its sample and storage boundary.
 
 Deploy the contents of `dist/` as an Azure Static Web App. `public/staticwebapp.config.json` supplies the response policies, cache rules, manifest MIME type, and designed 404 response; deployment itself is owned by the factory.
